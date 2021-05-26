@@ -9,19 +9,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.media.jai.Interpolation;
+import javax.swing.SwingWorker;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.processing.Operations;
-import org.geotools.data.DataSourceException;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.opengis.geometry.Envelope;
+import pansharpener.algorithms.helpers.Action;
+import pansharpener.gui.GUI;
 
-public abstract class GenericAlgorithm {
-    abstract public int getNumberOfBands();
-    abstract public List<String> getBandNames();
-
-    abstract public void start(List<String> paths, int interpolationType) throws IOException;
+public abstract class GenericAlgorithm extends SwingWorker<String, Action> {
+    protected List<String> paths;
+    protected int interpolationType;
+    protected GUI ui;
 
     // TODO protected
     public static void WriteImage(String pathResult, Envelope env, RenderedImage imagePan, WritableRaster raster)
@@ -79,5 +81,27 @@ public abstract class GenericAlgorithm {
         }
 
         return baseCoverage;
+    }
+
+    abstract public String[] getBandNames();
+    abstract public Boolean[] getUsedBands();
+    abstract public Boolean[] getRequiredBands();
+
+
+    abstract public void start(List<String> paths, int interpolationType, GUI ui) throws IOException;
+
+    @Override
+    protected void process(List<Action> chunks) {
+        chunks.get(chunks.size() - 1).updateProgress(ui);
+    }
+
+    @Override
+    protected void done() {
+        try {
+            String statusMsg = get();
+            ui.buttonMergeSetEnabled(true);
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 }

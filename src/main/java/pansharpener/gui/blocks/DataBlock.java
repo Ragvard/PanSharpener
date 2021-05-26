@@ -38,7 +38,7 @@ public class DataBlock {
     public void setVisible(boolean flag, String newName) {
         panel.setVisible(flag);
         name.setText(newName);
-        clear();
+        if(!flag) clear();
     }
 
     public void addListener(JFileChooser fileChooser) {
@@ -67,8 +67,8 @@ public class DataBlock {
     private void clear() {
         path.setText("No data selected");
         fullPath = "";
-        w.setText("");
-        h.setText("");
+        w.setText("W:");
+        h.setText("H:");
         valid = false;
     }
 

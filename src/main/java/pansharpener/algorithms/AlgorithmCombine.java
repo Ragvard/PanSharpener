@@ -6,52 +6,92 @@ import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.data.DataSourceException;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.opengis.geometry.Envelope;
+import pansharpener.algorithms.helpers.Action;
+import pansharpener.gui.GUI;
 
 public class AlgorithmCombine extends GenericAlgorithm{
+
     @Override
-    public int getNumberOfBands() {
-        return 3;
+    public String[] getBandNames() {
+        return new String[] {
+                "",
+                "Red Band",
+                "Green Band",
+                "Blue Band",
+                ""
+        };
     }
 
     @Override
-    public List<String> getBandNames() {
-        ArrayList<String> names = new ArrayList<>();
-        names.add("Red");
-        names.add("Green");
-        names.add("Blue");
-        return names;
+    public Boolean[] getUsedBands() {
+        return new Boolean[] {
+                false,
+                true,
+                true,
+                true,
+                false
+        };
     }
 
     @Override
-    public void start(List<String> paths, int interpolationType) throws IOException {
+    public Boolean[] getRequiredBands() {
+        return new Boolean[] {
+                false,
+                true,
+                true,
+                true,
+                false
+        };
+    }
+
+    @Override
+    public void start(List<String> paths, int interpolationType, GUI ui){
+        this.paths = paths;
+        this.interpolationType = interpolationType;
+        this.ui = ui;
+        int numberOfInputs = paths.size();
+
+        if (numberOfInputs == 4) {
+            execute();
+        } else {
+            throw new IllegalArgumentException("Invalid number of paths: expected 4, received  " + numberOfInputs);
+        }
+    }
+
+    @Override
+    protected String doInBackground() throws IOException {
+        publish(new Action("Preprocessing: Reading Files...", 0));
         File fileRed = new File(paths.get(0));
         File fileGreen = new File(paths.get(1));
         File fileBlue = new File(paths.get(2));
 
+        publish(new Action("Preprocessing: Reading Geodata...", 0));
         GeoTiffReader reader = new GeoTiffReader(fileRed);
         GridCoverage2D coveragePan = reader.read(null);
         Envelope env = coveragePan.getEnvelope();
         RenderedImage imagePan = coveragePan.getRenderedImage();
         Raster rasterPan = imagePan.getData();
 
+        publish(new Action("Preprocessing: Preparing Red Band...", 0));
         reader = new GeoTiffReader(fileRed);
         DataBuffer bufferRed = reader.read(null).getRenderedImage().getData().getDataBuffer();
 
+        publish(new Action("Preprocessing: Preparing Green Band...", 25));
         reader = new GeoTiffReader(fileGreen);
         DataBuffer bufferGreen = reader.read(null).getRenderedImage().getData().getDataBuffer();
 
+        publish(new Action("Preprocessing: Preparing Blue Band...", 50));
         reader = new GeoTiffReader(fileBlue);
         DataBuffer bufferBlue = reader.read(null).getRenderedImage().getData().getDataBuffer();
 
         int w = rasterPan.getWidth();
         int h = rasterPan.getHeight();
 
+        publish(new Action("Preprocessing: Creating Raster...", 75));
         WritableRaster raster = Raster.createBandedRaster(DataBuffer.TYPE_USHORT, w, h, 3, null);
 
         for (int x = 0; x < w; x++) {
@@ -67,8 +107,15 @@ public class AlgorithmCombine extends GenericAlgorithm{
 
                 raster.setPixel(x, y, arr);
             }
+            publish(new Action("Pansharpening...", (int) (x * 100d / w)));
         }
 
+        publish(new Action("Saving Results...", 100));
+
         WriteImage(paths.get(3), env, imagePan, raster);
+
+        publish(new Action("Pansharpening Complete!", 100));
+
+        return "Done";
     }
 }

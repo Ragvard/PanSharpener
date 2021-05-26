@@ -1,16 +1,15 @@
 package pansharpener.gui;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.HeadlessException;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.WritableRaster;
+import java.awt.LayoutManager;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -18,24 +17,19 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.gce.geotiff.GeoTiffReader;
-import org.opengis.geometry.Envelope;
 import pansharpener.algorithms.AlgorithmBrovey;
 import pansharpener.algorithms.AlgorithmCombine;
 import pansharpener.algorithms.AlgorithmMax;
 import pansharpener.algorithms.GenericAlgorithm;
 import pansharpener.algorithms.AlgorithmMean;
-import pansharpener.algorithms.helpers.ReaderHelper;
 import pansharpener.gui.blocks.DataBlock;
-import static pansharpener.algorithms.GenericAlgorithm.WriteImage;
-import static pansharpener.algorithms.GenericAlgorithm.rescale;
 
 public class GUI extends JFrame {
     private class FileChooser extends JFileChooser {
@@ -58,12 +52,12 @@ public class GUI extends JFrame {
     private JButton buttonMerge;
     private JPanel panelSettings;
     private JPanel panelDataGeneral;
-    private JPanel panelData1;
-    private JButton buttonData1;
-    private JLabel labelDataPath1;
-    private JLabel labelDataW1;
-    private JLabel labelDataH1;
-    private JLabel labelDataName1;
+    private JPanel panelDataPan;
+    private JButton buttonDataPan;
+    private JLabel labelDataPathPan;
+    private JLabel labelDataWPan;
+    private JLabel labelDataHPan;
+    private JLabel labelDataNamePan;
     private JPanel panelData2;
     private JButton buttonData2;
     private JLabel labelDataName2;
@@ -86,11 +80,23 @@ public class GUI extends JFrame {
     private JRadioButton radioButton2;
     private JRadioButton radioButton3;
     private JRadioButton radioButton4;
-    private JButton buttonClear1;
+    private JButton buttonClearPan;
     private JButton buttonClear2;
     private JButton buttonClear3;
     private JButton buttonClear4;
     private JPanel panelInterpolationType;
+    private JProgressBar progressBar;
+    private JPanel panelData5;
+    private JButton buttonData5;
+    private JButton buttonClear5;
+    private JLabel labelDataPath5;
+    private JLabel labelDataW5;
+    private JLabel labelDataH5;
+    private JLabel labelDataName5;
+    private JLabel labelAction;
+    private JSpinner spinner1;
+    private JLabel labelSpinner1;
+    private JPanel panelParameters;
     private ButtonGroup radioButtonGroup;
 
     final FileChooser fileChooser = new FileChooser();
@@ -100,8 +106,10 @@ public class GUI extends JFrame {
 
     public GUI() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException,
             InstantiationException, IllegalAccessException {
-
         super("PanSharpener");
+
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("GeoTIFF files", "tiff", "tif");
+        fileChooser.setFileFilter(filter);
 
         algorithms = new ArrayList<>();
         algorithms.add(new AlgorithmCombine());
@@ -110,7 +118,6 @@ public class GUI extends JFrame {
         algorithms.add(new AlgorithmBrovey());
 
         createDataBlocks();
-        updateDataBlocks();
 
         comboBoxAlgorithm.addActionListener(e -> updateDataBlocks());
 
@@ -121,40 +128,56 @@ public class GUI extends JFrame {
 
             int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
             GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
-
+            Boolean[] usedBands = currentAlgorithm.getUsedBands();
             int interpolationType = Integer.parseInt(radioButtonGroup.getSelection().getActionCommand());
 
-            int returnVal = fileChooser.showOpenDialog(null);
-
+            int returnVal = fileChooser.showSaveDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
 
-                startThread(currentAlgorithm, file, dataBlocks, interpolationType);
+                try {
+                    String pathResult = file.getPath();
+                    List<String> inputs = new ArrayList<>();
+                    for (int i = 0; i < 5; i++) {
+                        if (usedBands[i] & dataBlocks.get(i).isValid()) {
+                            inputs.add(dataBlocks.get(i).getFullPath());
+                        }
+                    }
+                    inputs.add(pathResult);
+
+                    buttonMergeSetEnabled(false);
+                    currentAlgorithm.start(inputs, interpolationType, this);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
         });
-
-
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("GeoTIFF files", "tiff", "tif");
-        fileChooser.setFileFilter(filter);
 
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         this.setContentPane(panelMain);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         SwingUtilities.updateComponentTreeUI(this);
         this.pack();
+        updateDataBlocks();
+        this.setMinimumSize(getPreferredSize());
+        this.setSize(this.getMinimumSize());
         this.setVisible(true);
+
+
+
+        panelMain.addComponentListener(new ResizeListener());
     }
 
     private void createDataBlocks() {
         dataBlocks = new ArrayList<>();
         dataBlocks.add(new DataBlock(
-                panelData1,
-                buttonData1,
-                buttonClear1,
-                labelDataName1,
-                labelDataPath1,
-                labelDataW1,
-                labelDataH1
+                panelDataPan,
+                buttonDataPan,
+                buttonClearPan,
+                labelDataNamePan,
+                labelDataPathPan,
+                labelDataWPan,
+                labelDataHPan
         ));
         dataBlocks.add(new DataBlock(
                 panelData2,
@@ -183,31 +206,43 @@ public class GUI extends JFrame {
                 labelDataW4,
                 labelDataH4
         ));
+        dataBlocks.add(new DataBlock(
+                panelData5,
+                buttonData5,
+                buttonClear5,
+                labelDataName5,
+                labelDataPath5,
+                labelDataW5,
+                labelDataH5
+        ));
     }
 
     private void updateDataBlocks() {
         int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
-        GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
-        int numberOfBands = currentAlgorithm.getNumberOfBands();
-        List<String> bandNames = currentAlgorithm.getBandNames();
-
-        for (int i = 0; i < 4; i++) {
-            if (i < numberOfBands) {
-                dataBlocks.get(i).setVisible(true, bandNames.get(i));
-            }
-            else {
-                dataBlocks.get(i).setVisible(false);
-            }
+        if (selectedIndex == -1) {
+            dataBlocks.forEach(o -> o.setVisible(false));
+            return;
         }
+
+        GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
+        String[] bandNames = currentAlgorithm.getBandNames();
+        Boolean[] usedBands = currentAlgorithm.getUsedBands();
+
+        for (int i = 0; i < 5; i++) {
+            dataBlocks.get(i).setVisible(usedBands[i], bandNames[i]);
+        }
+
+        // updateSize();
     }
 
     private Boolean checkReadiness() {
         int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
         GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
-        int numberOfBands = currentAlgorithm.getNumberOfBands();
+        Boolean[] requiredBands = currentAlgorithm.getRequiredBands();
 
-        for (int i = 0; i < numberOfBands; i++) {
-            if (!dataBlocks.get(i).isValid()) {
+
+        for (int i = 0; i < 5; i++) {
+            if (requiredBands[i] & !dataBlocks.get(i).isValid()) {
                 return false;
             }
         }
@@ -215,159 +250,28 @@ public class GUI extends JFrame {
         return true;
     }
 
-    private static void startThread(GenericAlgorithm currentAlgorithm, File file, List<DataBlock> dataBlocks, int interpolationType)
-    {
-
-        SwingWorker<String, Integer> worker = new SwingWorker<>()
-        {
-
-            @Override
-            protected String doInBackground() throws Exception
-            {
-                    try {
-                        String pathResult = file.getPath();
-                        List<String> inputs = new ArrayList<>();
-                        for (int i = 0; i < currentAlgorithm.getNumberOfBands(); i++) {
-                            inputs.add(dataBlocks.get(i).getFullPath());
-                        }
-                        inputs.add(pathResult);
-
-                        publish(-3);
-
-                        File filePan = new File(inputs.get(0));
-                        File fileRed = new File(inputs.get(1));
-                        File fileGreen = new File(inputs.get(2));
-                        File fileBlue = new File(inputs.get(3));
-
-                        GeoTiffReader reader = new GeoTiffReader(filePan);
-                        GridCoverage2D coveragePan = reader.read(null);
-                        Envelope env = coveragePan.getEnvelope();
-                        RenderedImage imagePan = coveragePan.getRenderedImage();
-                        Raster rasterPan = imagePan.getData();
-
-                        DataBuffer bufferPan = rasterPan.getDataBuffer();
-
-                        publish(-2);
-
-
-                        reader = new GeoTiffReader(fileRed);
-                        DataBuffer bufferRed = rescale(reader.read(null), coveragePan, interpolationType)
-                                .getRenderedImage().getData().getDataBuffer();
-
-                        reader = new GeoTiffReader(fileGreen);
-                        DataBuffer bufferGreen = rescale(reader.read(null), coveragePan, interpolationType)
-                                .getRenderedImage().getData().getDataBuffer();
-
-                        reader = new GeoTiffReader(fileBlue);
-                        DataBuffer bufferBlue = rescale(reader.read(null), coveragePan, interpolationType)
-                                .getRenderedImage().getData().getDataBuffer();
-
-                        int w = rasterPan.getWidth();
-                        int h = rasterPan.getHeight();
-
-                        publish(-1);
-
-                        // TODO OutOfMemoryError
-                        WritableRaster raster = Raster.createBandedRaster(DataBuffer.TYPE_USHORT, w, h, 3, null);
-
-                        for (int x = 0; x < w; x++) {
-                            for (int y = 0; y < h; y++) {
-                                int r = bufferRed.getElem(x + y * w);
-                                int g = bufferGreen.getElem(x + y * w);
-                                int b = bufferBlue.getElem(x + y * w);
-                                int p = bufferPan.getElem(x + y * w);
-
-                                int[] arr = new int[3];
-                                arr[0] = (r + p) / 2;
-                                arr[1] = (g + p) / 2;
-                                arr[2] = (b + p) / 2;
-
-                                raster.setPixel(x, y, arr);
-                            }
-                            publish((int) (x * 100d / w));
-                        }
-
-                        WriteImage(inputs.get(4), env, imagePan, raster);
-                        System.gc();
-                        System.out.println("Finished");
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                    }
-                    return "Oof";
-            }
-
-
-
-            @Override
-            protected void process(List<Integer> chunks)
-            {
-                // define what the event dispatch thread
-                // will do with the intermediate results received
-                // while the thread is executing
-                int val = (int) chunks.get(chunks.size() - 1);
-                if (val == -3) System.out.println("Чтение файлов");
-                else if (val == -2) System.out.println("Ресамплинг");
-                else if (val == -1) System.out.println("Создание растра");
-                else {
-                    System.out.println(val);
-                }
-            }
-
-            @Override
-            protected void done()
-            {
-                // this method is called when the background
-                // thread finishes execution
-                try
-                {
-                    String statusMsg = get();
-                    System.out.println("Inside done function");
-
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-                catch (ExecutionException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        worker.execute();
+    private void updateSize() {
+         pack();
+         setMinimumSize(getPreferredSize());
     }
 
+    public void setProgress(int progress) {
+        this.progressBar.setValue(progress);
+    }
+
+    public void setCurrentAction(String action) {
+        labelAction.setText(action);
+    }
+
+    public void buttonMergeSetEnabled(boolean flag) {
+        buttonMerge.setEnabled(flag);
+    }
+
+    class ResizeListener extends ComponentAdapter {
+        public void componentResized(ComponentEvent e) {
+            System.out.println(getSize());
+            System.out.println();
+            //System.out.println(getSize());
+        }
+    }
 }
-
-
-//        buttonMerge.addActionListener(e -> {
-//            if (!checkReadiness()) return;
-//
-//            int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
-//            GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
-//
-//            int interpolationType = Integer.parseInt(radioButtonGroup.getSelection().getActionCommand());
-//
-//            int returnVal = fileChooser.showOpenDialog(null);
-//
-//            if (returnVal == JFileChooser.APPROVE_OPTION) {
-//                File file = fileChooser.getSelectedFile();
-//
-//                try {
-//                    String pathResult = file.getPath();
-//                    List<String> inputs = new ArrayList<>();
-//                    for (int i = 0; i < currentAlgorithm.getNumberOfBands(); i++) {
-//                        inputs.add(dataBlocks.get(i).getFullPath());
-//                    }
-//                    inputs.add(pathResult);
-//
-//                    currentAlgorithm.start(inputs, interpolationType);
-//                    System.gc();
-//                    System.out.println(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
-//                    System.out.println("Finished");
-//                } catch (IOException ioException) {
-//                    ioException.printStackTrace();
-//                }
-//            }
-//        });
