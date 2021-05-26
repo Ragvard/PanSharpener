@@ -23,15 +23,27 @@ import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.opengis.geometry.Envelope;
 import pansharpener.algorithms.helpers.Action;
 import pansharpener.algorithms.helpers.AdditionalParameter;
+import pansharpener.algorithms.helpers.AlgorithmWorker;
 import pansharpener.gui.GUI;
 
-public abstract class GenericAlgorithm extends SwingWorker<String, Action> {
+public abstract class GenericAlgorithm {
     protected List<String> paths;
     protected int interpolationType;
     protected GUI ui;
+    protected AlgorithmWorker worker;
+    abstract public String[] getBandNames();
+    abstract public boolean[] getUsedBands();
+    abstract public boolean[] getRequiredBands();
+    abstract public AdditionalParameter[] getParameters();
 
-    // TODO protected
-    public static void WriteImage(String pathResult, Envelope env, RenderedImage imagePan, WritableRaster raster)
+
+    abstract public void start(List<String> paths, int interpolationType, List<Double> parameters, GUI ui) throws IOException;
+
+    protected void displayMessage(String text, String title, int type) {
+        JOptionPane.showMessageDialog(ui, text, title, type);
+    }
+
+    protected static void WriteImage(String pathResult, Envelope env, RenderedImage imagePan, WritableRaster raster)
             throws IOException {
         ComponentColorModel cm = (ComponentColorModel) imagePan.getColorModel();
         boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
@@ -65,8 +77,7 @@ public abstract class GenericAlgorithm extends SwingWorker<String, Action> {
         newCoverage.dispose(true);
     }
 
-    // TODO protected
-    public static GridCoverage2D rescale(GridCoverage2D baseCoverage, GridCoverage2D targetCoverage,
+    protected static GridCoverage2D rescale(GridCoverage2D baseCoverage, GridCoverage2D targetCoverage,
                                          int interpolationType) {
 
         RenderedImage baseImage = targetCoverage.getRenderedImage();
@@ -88,32 +99,9 @@ public abstract class GenericAlgorithm extends SwingWorker<String, Action> {
 
         return baseCoverage;
     }
-
-    abstract public String[] getBandNames();
-    abstract public Boolean[] getUsedBands();
-    abstract public Boolean[] getRequiredBands();
-    abstract public AdditionalParameter[] getParameters();
-
-
-    abstract public void start(List<String> paths, int interpolationType, List<Double> parameters, GUI ui) throws IOException;
-
-    @Override
-    protected void process(List<Action> chunks) {
-        chunks.get(chunks.size() - 1).updateProgress(ui);
-    }
-
-    @Override
-    protected void done() {
-        try {
-            String statusMsg = get();
-            ui.buttonMergeSetEnabled(true);
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected void displayMessage(String text, String title, int type) {
-        JOptionPane.showMessageDialog(ui, text, title, type);
+    public void clearWorker() {
+        worker = null;
+        System.gc();
     }
 
     public static Map<String, String> getInfo(File file) throws IOException {

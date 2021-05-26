@@ -270,7 +270,7 @@ public class GUI extends JFrame {
 
         GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
         String[] bandNames = currentAlgorithm.getBandNames();
-        Boolean[] usedBands = currentAlgorithm.getUsedBands();
+        boolean[] usedBands = currentAlgorithm.getUsedBands();
 
         for (int i = 0; i < 5; i++) {
             dataBlocks.get(i).setVisible(usedBands[i], bandNames[i]);
@@ -308,7 +308,7 @@ public class GUI extends JFrame {
 
         int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
         GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
-        Boolean[] usedBands = currentAlgorithm.getUsedBands();
+        boolean[] usedBands = currentAlgorithm.getUsedBands();
         int interpolationType = Integer.parseInt(radioButtonGroup.getSelection().getActionCommand());
 
         int returnVal = fileChooser.showSaveDialog(null);
@@ -347,7 +347,7 @@ public class GUI extends JFrame {
     private Boolean checkReadiness() {
         int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
         GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
-        Boolean[] requiredBands = currentAlgorithm.getRequiredBands();
+        boolean[] requiredBands = currentAlgorithm.getRequiredBands();
 
 
         for (int i = 0; i < 5; i++) {
