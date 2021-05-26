@@ -18,6 +18,7 @@ import org.geotools.coverage.processing.Operations;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.opengis.geometry.Envelope;
 import pansharpener.algorithms.helpers.Action;
+import pansharpener.algorithms.helpers.AdditionalParameter;
 import pansharpener.gui.GUI;
 
 public abstract class GenericAlgorithm extends SwingWorker<String, Action> {
@@ -86,6 +87,7 @@ public abstract class GenericAlgorithm extends SwingWorker<String, Action> {
     abstract public String[] getBandNames();
     abstract public Boolean[] getUsedBands();
     abstract public Boolean[] getRequiredBands();
+    abstract public AdditionalParameter[] getParameters();
 
 
     abstract public void start(List<String> paths, int interpolationType, GUI ui) throws IOException;

@@ -11,6 +11,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.opengis.geometry.Envelope;
 import pansharpener.algorithms.helpers.Action;
+import pansharpener.algorithms.helpers.AdditionalParameter;
 import pansharpener.gui.GUI;
 
 public class AlgorithmMean extends GenericAlgorithm{
@@ -45,6 +46,24 @@ public class AlgorithmMean extends GenericAlgorithm{
                 true,
                 true,
                 false
+        };
+    }
+
+    @Override
+    public AdditionalParameter[] getParameters() {
+        return new AdditionalParameter[] {
+                new AdditionalParameter(
+                        "Red Band Weight",
+                        1d, 0d, 2d, 0.01
+                ),
+                new AdditionalParameter(
+                        "Green Band Weight",
+                        1d, 0d, 2d, 0.01
+                ),
+                new AdditionalParameter(
+                        "Blue Band Weight",
+                        1d, 0d, 2d, 0.01
+                )
         };
     }
 

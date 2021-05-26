@@ -11,6 +11,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.opengis.geometry.Envelope;
 import pansharpener.algorithms.helpers.Action;
+import pansharpener.algorithms.helpers.AdditionalParameter;
 import pansharpener.gui.GUI;
 
 public class AlgorithmCombine extends GenericAlgorithm{
@@ -46,6 +47,11 @@ public class AlgorithmCombine extends GenericAlgorithm{
                 true,
                 false
         };
+    }
+
+    @Override
+    public AdditionalParameter[] getParameters() {
+        return new AdditionalParameter[0];
     }
 
     @Override

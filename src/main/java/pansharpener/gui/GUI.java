@@ -1,11 +1,6 @@
 package pansharpener.gui;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.HeadlessException;
-import java.awt.LayoutManager;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +24,9 @@ import pansharpener.algorithms.AlgorithmCombine;
 import pansharpener.algorithms.AlgorithmMax;
 import pansharpener.algorithms.GenericAlgorithm;
 import pansharpener.algorithms.AlgorithmMean;
+import pansharpener.algorithms.helpers.AdditionalParameter;
 import pansharpener.gui.blocks.DataBlock;
+import pansharpener.gui.blocks.ParameterBlock;
 
 public class GUI extends JFrame {
     private class FileChooser extends JFileChooser {
@@ -97,12 +94,30 @@ public class GUI extends JFrame {
     private JSpinner spinner1;
     private JLabel labelSpinner1;
     private JPanel panelParameters;
+    private JSpinner spinner2;
+    private JSpinner spinner3;
+    private JSpinner spinner5;
+    private JSpinner spinner4;
+    private JSpinner spinner6;
+    private JLabel labelSpinner2;
+    private JLabel labelSpinner3;
+    private JLabel labelSpinner5;
+    private JLabel labelSpinner4;
+    private JLabel labelSpinner6;
+    private JPanel panelSpinner1;
+    private JPanel panelSpinner2;
+    private JPanel panelSpinner3;
+    private JPanel panelSpinner4;
+    private JPanel panelSpinner5;
+    private JPanel panelSpinner6;
     private ButtonGroup radioButtonGroup;
 
     final FileChooser fileChooser = new FileChooser();
 
     private List<GenericAlgorithm> algorithms;
     private List<DataBlock> dataBlocks;
+    private List<ParameterBlock> parameterBlocks;
+
 
     public GUI() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException,
             InstantiationException, IllegalAccessException {
@@ -118,8 +133,12 @@ public class GUI extends JFrame {
         algorithms.add(new AlgorithmBrovey());
 
         createDataBlocks();
+        createParameterBlocks();
 
-        comboBoxAlgorithm.addActionListener(e -> updateDataBlocks());
+        comboBoxAlgorithm.addActionListener(e -> {
+            updateDataBlocks();
+            updateParameterBlocks();
+        });
 
         dataBlocks.forEach(o -> o.addListener(fileChooser));
 
@@ -153,19 +172,29 @@ public class GUI extends JFrame {
             }
         });
 
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        setLookAndFeel();
         this.setContentPane(panelMain);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         SwingUtilities.updateComponentTreeUI(this);
         this.pack();
         updateDataBlocks();
+        updateParameterBlocks();
         this.setMinimumSize(getPreferredSize());
         this.setSize(this.getMinimumSize());
         this.setVisible(true);
+    }
 
 
+    public void setProgress(int progress) {
+        this.progressBar.setValue(progress);
+    }
 
-        panelMain.addComponentListener(new ResizeListener());
+    public void setCurrentAction(String action) {
+        labelAction.setText(action);
+    }
+
+    public void buttonMergeSetEnabled(boolean flag) {
+        buttonMerge.setEnabled(flag);
     }
 
     private void createDataBlocks() {
@@ -217,6 +246,40 @@ public class GUI extends JFrame {
         ));
     }
 
+    private void createParameterBlocks() {
+        parameterBlocks = new ArrayList<>();
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner1,
+                labelSpinner1,
+                spinner1
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner2,
+                labelSpinner2,
+                spinner2
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner3,
+                labelSpinner3,
+                spinner3
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner4,
+                labelSpinner4,
+                spinner4
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner5,
+                labelSpinner5,
+                spinner5
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner6,
+                labelSpinner6,
+                spinner6
+        ));
+    }
+
     private void updateDataBlocks() {
         int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
         if (selectedIndex == -1) {
@@ -231,8 +294,25 @@ public class GUI extends JFrame {
         for (int i = 0; i < 5; i++) {
             dataBlocks.get(i).setVisible(usedBands[i], bandNames[i]);
         }
+    }
 
-        // updateSize();
+    private void updateParameterBlocks() {
+        int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
+        if (selectedIndex == -1) {
+            parameterBlocks.forEach(o -> o.setVisible(false));
+            return;
+        }
+
+        GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
+        AdditionalParameter[] parameters = currentAlgorithm.getParameters();
+
+        int i = 0;
+        for (; i < parameters.length; i++) {
+            parameterBlocks.get(i).setVisible(true, parameters[i]);
+        }
+        for(;i < 6; i++) {
+            parameterBlocks.get(i).setVisible(false);
+        }
     }
 
     private Boolean checkReadiness() {
@@ -250,28 +330,18 @@ public class GUI extends JFrame {
         return true;
     }
 
-    private void updateSize() {
-         pack();
-         setMinimumSize(getPreferredSize());
-    }
-
-    public void setProgress(int progress) {
-        this.progressBar.setValue(progress);
-    }
-
-    public void setCurrentAction(String action) {
-        labelAction.setText(action);
-    }
-
-    public void buttonMergeSetEnabled(boolean flag) {
-        buttonMerge.setEnabled(flag);
-    }
-
-    class ResizeListener extends ComponentAdapter {
-        public void componentResized(ComponentEvent e) {
-            System.out.println(getSize());
-            System.out.println();
-            //System.out.println(getSize());
+    private void setLookAndFeel() throws ClassNotFoundException, UnsupportedLookAndFeelException,
+            InstantiationException, IllegalAccessException {
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (IllegalAccessException | InstantiationException |
+                UnsupportedLookAndFeelException | ClassNotFoundException e) {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
     }
 }
