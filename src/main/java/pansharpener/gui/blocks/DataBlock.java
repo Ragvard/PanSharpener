@@ -1,6 +1,5 @@
 package pansharpener.gui.blocks;
 
-import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -12,7 +11,8 @@ import pansharpener.algorithms.helpers.ReaderHelper;
 
 public class DataBlock {
     private JPanel panel;
-    private JButton button;
+    private JButton buttonSelect;
+    private JButton buttonClear;
     private JLabel name;
     private JLabel path;
     private JLabel w;
@@ -21,9 +21,10 @@ public class DataBlock {
     private String fullPath;
     private Boolean valid = false;
 
-    public DataBlock(JPanel panel, JButton button, JLabel name, JLabel path, JLabel w, JLabel h) {
+    public DataBlock(JPanel panel, JButton buttonSelect, JButton buttonClear, JLabel name, JLabel path, JLabel w, JLabel h) {
         this.panel = panel;
-        this.button = button;
+        this.buttonSelect = buttonSelect;
+        this.buttonClear = buttonClear;
         this.name = name;
         this.path = path;
         this.w = w;
@@ -41,24 +42,26 @@ public class DataBlock {
     }
 
     public void addListener(JFileChooser fileChooser) {
-        button.addActionListener(e -> {
+        buttonSelect.addActionListener(e -> {
             int returnVal = fileChooser.showOpenDialog(null);
 
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
-
                 try {
                     Map<String, String> info = ReaderHelper.getInfo(file);
                     path.setText(file.getName());
                     fullPath = file.getPath();
                     w.setText("W:" + info.get("Width"));
                     h.setText("H:" + info.get("Height"));
+                    valid = true;
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                     clear();
                 }
             }
         });
+
+        buttonClear.addActionListener(e -> clear());
     }
 
     private void clear() {
