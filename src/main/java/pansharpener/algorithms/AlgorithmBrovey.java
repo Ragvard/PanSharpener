@@ -7,6 +7,7 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import javax.swing.JOptionPane;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.opengis.geometry.Envelope;
@@ -68,19 +69,28 @@ public class AlgorithmBrovey extends GenericAlgorithm{
     }
 
     @Override
-    public void start(List<String> paths, int interpolationType, GUI ui) {
+    public void start(List<String> paths, int interpolationType, List<Double> parameters, GUI ui) {
         this.paths = paths;
         this.interpolationType = interpolationType;
         this.ui = ui;
         int numberOfInputs = paths.size();
 
         if (numberOfInputs == 5) {
+            if (parameters.size() != 3) {
+                displayMessage("Invalid number of parameters", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            ui.buttonMergeSetEnabled(false);
             execute();
         } else if (numberOfInputs == 6) {
+            if (parameters.size() != 4) {
+                displayMessage("Invalid number of parameters", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             // TODO NIR вариант
             System.out.println("Заглушка для NIR");
         } else {
-            throw new IllegalArgumentException("Invalid number of paths: expected 5 or 6, received  " + numberOfInputs);
+            displayMessage("Invalid number of inputs", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -148,6 +158,8 @@ public class AlgorithmBrovey extends GenericAlgorithm{
         publish(new Action("Saving Results...", 100));
 
         WriteImage(paths.get(4), env, imagePan, raster);
+        reader.dispose();
+        coveragePan.dispose(true);
 
         publish(new Action("Pansharpening Complete!", 100));
 

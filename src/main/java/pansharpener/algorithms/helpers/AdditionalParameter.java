@@ -1,8 +1,5 @@
 package pansharpener.algorithms.helpers;
 
-import pansharpener.gui.GUI;
-import pansharpener.gui.blocks.ParameterBlock;
-
 public class AdditionalParameter {
     private final String label;
     private final double minValue;

@@ -11,6 +11,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
@@ -126,51 +127,11 @@ public class GUI extends JFrame {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("GeoTIFF files", "tiff", "tif");
         fileChooser.setFileFilter(filter);
 
-        algorithms = new ArrayList<>();
-        algorithms.add(new AlgorithmCombine());
-        algorithms.add(new AlgorithmMean());
-        algorithms.add(new AlgorithmMax());
-        algorithms.add(new AlgorithmBrovey());
-
+        createAlgorithms();
         createDataBlocks();
         createParameterBlocks();
 
-        comboBoxAlgorithm.addActionListener(e -> {
-            updateDataBlocks();
-            updateParameterBlocks();
-        });
-
-        dataBlocks.forEach(o -> o.addListener(fileChooser));
-
-        buttonMerge.addActionListener(e -> {
-            if (!checkReadiness()) return;
-
-            int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
-            GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
-            Boolean[] usedBands = currentAlgorithm.getUsedBands();
-            int interpolationType = Integer.parseInt(radioButtonGroup.getSelection().getActionCommand());
-
-            int returnVal = fileChooser.showSaveDialog(null);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-
-                try {
-                    String pathResult = file.getPath();
-                    List<String> inputs = new ArrayList<>();
-                    for (int i = 0; i < 5; i++) {
-                        if (usedBands[i] & dataBlocks.get(i).isValid()) {
-                            inputs.add(dataBlocks.get(i).getFullPath());
-                        }
-                    }
-                    inputs.add(pathResult);
-
-                    buttonMergeSetEnabled(false);
-                    currentAlgorithm.start(inputs, interpolationType, this);
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }
-        });
+        createListeners();
 
         setLookAndFeel();
         this.setContentPane(panelMain);
@@ -196,6 +157,7 @@ public class GUI extends JFrame {
     public void buttonMergeSetEnabled(boolean flag) {
         buttonMerge.setEnabled(flag);
     }
+
 
     private void createDataBlocks() {
         dataBlocks = new ArrayList<>();
@@ -280,6 +242,25 @@ public class GUI extends JFrame {
         ));
     }
 
+    private void createAlgorithms() {
+        algorithms = new ArrayList<>();
+        algorithms.add(new AlgorithmCombine());
+        algorithms.add(new AlgorithmMean());
+        algorithms.add(new AlgorithmMax());
+        algorithms.add(new AlgorithmBrovey());
+    }
+
+    private void createListeners() {
+        comboBoxAlgorithm.addActionListener(e -> {
+            updateDataBlocks();
+            updateParameterBlocks();
+        });
+
+        dataBlocks.forEach(o -> o.addListener(fileChooser));
+
+        buttonMerge.addActionListener(e -> mergeImages());
+    }
+
     private void updateDataBlocks() {
         int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
         if (selectedIndex == -1) {
@@ -312,6 +293,54 @@ public class GUI extends JFrame {
         }
         for(;i < 6; i++) {
             parameterBlocks.get(i).setVisible(false);
+        }
+    }
+
+
+    private void mergeImages() {
+        if (!checkReadiness()) {
+            JOptionPane.showMessageDialog(this,
+                    "You need to select all required input data to perform pansharpening.",
+                    "Tip",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
+        GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
+        Boolean[] usedBands = currentAlgorithm.getUsedBands();
+        int interpolationType = Integer.parseInt(radioButtonGroup.getSelection().getActionCommand());
+
+        int returnVal = fileChooser.showSaveDialog(null);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+
+            try {
+                List<String> inputs = new ArrayList<>();
+                for (int i = 0; i < 5; i++) {
+                    if (usedBands[i] & dataBlocks.get(i).isValid()) {
+                        inputs.add(dataBlocks.get(i).getFullPath());
+                    }
+                }
+                String pathResult = file.getPath();
+                inputs.add(pathResult);
+
+                List<Double> parameters = new ArrayList<>();
+                for (int i = 0; i < 6; i++) {
+                    if (parameterBlocks.get(i).isValid()) {
+                        parameters.add(parameterBlocks.get(i).getValue());
+                    }
+                }
+
+//                buttonMergeSetEnabled(false);
+                createAlgorithms();
+                currentAlgorithm.start(inputs, interpolationType, parameters, this);
+            } catch (IOException ioException) {
+                JOptionPane.showMessageDialog(this,
+                        "Unable to save to specified file.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 

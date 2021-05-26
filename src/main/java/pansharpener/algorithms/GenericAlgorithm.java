@@ -7,14 +7,18 @@ import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.media.jai.Interpolation;
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.processing.Operations;
+import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.opengis.geometry.Envelope;
 import pansharpener.algorithms.helpers.Action;
@@ -57,6 +61,7 @@ public abstract class GenericAlgorithm extends SwingWorker<String, Action> {
         final GeoTiffWriter writer = new GeoTiffWriter(writeFile);
 
         writer.write(newCoverage, null);
+        writer.dispose();
         newCoverage.dispose(true);
     }
 
@@ -90,7 +95,7 @@ public abstract class GenericAlgorithm extends SwingWorker<String, Action> {
     abstract public AdditionalParameter[] getParameters();
 
 
-    abstract public void start(List<String> paths, int interpolationType, GUI ui) throws IOException;
+    abstract public void start(List<String> paths, int interpolationType, List<Double> parameters, GUI ui) throws IOException;
 
     @Override
     protected void process(List<Action> chunks) {
@@ -105,5 +110,21 @@ public abstract class GenericAlgorithm extends SwingWorker<String, Action> {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
+    }
+
+    protected void displayMessage(String text, String title, int type) {
+        JOptionPane.showMessageDialog(ui, text, title, type);
+    }
+
+    public static Map<String, String> getInfo(File file) throws IOException {
+        Map<String, String> result = new HashMap<>();
+
+        GeoTiffReader reader = new GeoTiffReader(file);
+        GridCoverage2D coveragePan = reader.read(null);
+        coveragePan.getGridGeometry().getGridRange2D();
+        result.put("Height", String.valueOf(coveragePan.getGridGeometry().getGridRange2D().height));
+        result.put("Width", String.valueOf(coveragePan.getGridGeometry().getGridRange2D().width));
+
+        return result;
     }
 }

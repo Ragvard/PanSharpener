@@ -7,7 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import pansharpener.algorithms.helpers.ReaderHelper;
+import pansharpener.algorithms.GenericAlgorithm;
 
 public class DataBlock {
     private JPanel panel;
@@ -48,7 +48,7 @@ public class DataBlock {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
                 try {
-                    Map<String, String> info = ReaderHelper.getInfo(file);
+                    Map<String, String> info = GenericAlgorithm.getInfo(file);
                     path.setText(file.getName());
                     fullPath = file.getPath();
                     w.setText("W:" + info.get("Width"));

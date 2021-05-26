@@ -68,7 +68,7 @@ public class AlgorithmMax extends GenericAlgorithm{
     }
 
     @Override
-    public void start(List<String> paths, int interpolationType, GUI ui) {
+    public void start(List<String> paths, int interpolationType, List<Double> parameters, GUI ui) {
         this.paths = paths;
         this.interpolationType = interpolationType;
         this.ui = ui;

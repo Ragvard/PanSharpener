@@ -1,6 +1,5 @@
 package pansharpener.gui.blocks;
 
-import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -11,6 +10,7 @@ public class ParameterBlock {
     private JPanel panel;
     private JLabel label;
     private JSpinner spinner;
+    private Boolean valid = false;
 
     public ParameterBlock(JPanel panel, JLabel label, JSpinner spinner) {
         this.panel = panel;
@@ -20,10 +20,11 @@ public class ParameterBlock {
 
     public void setVisible(boolean flag) {
         panel.setVisible(flag);
+        valid = flag;
     }
 
     public void setVisible(boolean flag, AdditionalParameter additionalParameter) {
-        panel.setVisible(flag);
+        setVisible(flag);
         if (flag) update(additionalParameter);
     }
 
@@ -37,7 +38,11 @@ public class ParameterBlock {
         ));
     }
 
-    public JSpinner getSpinner() {
-        return spinner;
+    public Boolean isValid() {
+        return valid;
+    }
+
+    public double getValue() {
+        return (double) spinner.getValue();
     }
 }
