@@ -1,43 +1,63 @@
 package pansharpener.gui;
 
 import java.awt.HeadlessException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
+import javax.swing.JSpinner;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import pansharpener.algorithms.CombineAlgorithm;
+import pansharpener.algorithms.AlgorithmBrovey;
+import pansharpener.algorithms.AlgorithmCombine;
+import pansharpener.algorithms.AlgorithmIHS;
+import pansharpener.algorithms.AlgorithmMax;
 import pansharpener.algorithms.GenericAlgorithm;
-import pansharpener.algorithms.MeanAlgorithm;
-import pansharpener.algorithms.helpers.ReaderHelper;
+import pansharpener.algorithms.AlgorithmMean;
+import pansharpener.algorithms.helpers.AdditionalParameter;
 import pansharpener.gui.blocks.DataBlock;
+import pansharpener.gui.blocks.ParameterBlock;
 
 public class GUI extends JFrame {
+    private static class FileChooser extends JFileChooser {
+        public FileChooser() throws ClassNotFoundException, UnsupportedLookAndFeelException,
+                InstantiationException, IllegalAccessException {
+            this(null);
+        }
+
+        public FileChooser(String path) throws ClassNotFoundException, UnsupportedLookAndFeelException,
+                InstantiationException, IllegalAccessException {
+            super(path);
+            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            SwingUtilities.updateComponentTreeUI(this);
+        }
+    }
+
     private JPanel panelMain;
     private JPanel panelAlgorithm;
-    private JComboBox comboBoxAlgorithm;
+    private JComboBox<String> comboBoxAlgorithm;
     private JButton buttonMerge;
     private JPanel panelSettings;
     private JPanel panelDataGeneral;
-    private JPanel panelData1;
-    private JButton buttonData1;
-    private JLabel labelDataPath1;
-    private JLabel labelDataW1;
-    private JLabel labelDataH1;
-    private JLabel labelDataName1;
+    private JPanel panelDataPan;
+    private JButton buttonDataPan;
+    private JLabel labelDataPathPan;
+    private JLabel labelDataWPan;
+    private JLabel labelDataHPan;
+    private JLabel labelDataNamePan;
     private JPanel panelData2;
     private JButton buttonData2;
     private JLabel labelDataName2;
@@ -59,92 +79,105 @@ public class GUI extends JFrame {
     private JRadioButton radioButton1;
     private JRadioButton radioButton2;
     private JRadioButton radioButton3;
-
-    private class FileChooser extends JFileChooser {
-        public FileChooser() throws ClassNotFoundException, UnsupportedLookAndFeelException,
-                InstantiationException, IllegalAccessException {
-            this(null);
-        }
-
-        public FileChooser(String path) throws ClassNotFoundException, UnsupportedLookAndFeelException,
-                InstantiationException, IllegalAccessException {
-            super(path);
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-            SwingUtilities.updateComponentTreeUI(this);
-        }
-    }
+    private JRadioButton radioButton4;
+    private JButton buttonClearPan;
+    private JButton buttonClear2;
+    private JButton buttonClear3;
+    private JButton buttonClear4;
+    private JPanel panelInterpolationType;
+    private JProgressBar progressBar;
+    private JPanel panelData5;
+    private JButton buttonData5;
+    private JButton buttonClear5;
+    private JLabel labelDataPath5;
+    private JLabel labelDataW5;
+    private JLabel labelDataH5;
+    private JLabel labelDataName5;
+    private JLabel labelAction;
+    private JSpinner spinner1;
+    private JLabel labelSpinner1;
+    private JPanel panelParameters;
+    private JSpinner spinner2;
+    private JSpinner spinner3;
+    private JSpinner spinner5;
+    private JSpinner spinner4;
+    private JSpinner spinner6;
+    private JLabel labelSpinner2;
+    private JLabel labelSpinner3;
+    private JLabel labelSpinner5;
+    private JLabel labelSpinner4;
+    private JLabel labelSpinner6;
+    private JPanel panelSpinner1;
+    private JPanel panelSpinner2;
+    private JPanel panelSpinner3;
+    private JPanel panelSpinner4;
+    private JPanel panelSpinner5;
+    private JPanel panelSpinner6;
+    private ButtonGroup radioButtonGroup;
 
     final FileChooser fileChooser = new FileChooser();
 
-
     private List<GenericAlgorithm> algorithms;
     private List<DataBlock> dataBlocks;
+    private List<ParameterBlock> parameterBlocks;
 
 
     public GUI() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException,
             InstantiationException, IllegalAccessException {
-
         super("PanSharpener");
 
-        algorithms = new ArrayList<>();
-        algorithms.add(new CombineAlgorithm());
-        algorithms.add(new MeanAlgorithm());
-
-        createDataBlocks();
-        updateDataBlocks();
-
-        comboBoxAlgorithm.addActionListener(e -> updateDataBlocks());
-
-        dataBlocks.forEach(o -> o.addListener(fileChooser));
-
-        buttonMerge.addActionListener(e -> {
-            int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
-            GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
-
-            int returnVal = fileChooser.showOpenDialog(null);
-
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-
-                try {
-                    String pathResult = file.getPath();
-                    List<String> inputs = new ArrayList<>();
-                    for (int i = 0; i < currentAlgorithm.getNumberOfBands(); i++) {
-                        inputs.add(dataBlocks.get(i).getFullPath());
-                    }
-                    inputs.add(pathResult);
-
-                    currentAlgorithm.start(inputs);
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }
-        });
+        this.setIconImage(new ImageIcon(this.getClass().getResource("/icon.png")).getImage());
 
         FileNameExtensionFilter filter = new FileNameExtensionFilter("GeoTIFF files", "tiff", "tif");
         fileChooser.setFileFilter(filter);
 
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        createAlgorithms();
+        createDataBlocks();
+        createParameterBlocks();
+
+        createListeners();
+
+        setLookAndFeel();
         this.setContentPane(panelMain);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         SwingUtilities.updateComponentTreeUI(this);
         this.pack();
+        updateDataBlocks();
+        updateParameterBlocks();
+        this.setMinimumSize(getPreferredSize());
+        this.setSize(this.getMinimumSize());
         this.setVisible(true);
     }
+
+
+    public void setProgress(int progress) {
+        this.progressBar.setValue(progress);
+    }
+
+    public void setCurrentAction(String action) {
+        labelAction.setText(action);
+    }
+
+    public void buttonMergeSetEnabled(boolean flag) {
+        buttonMerge.setEnabled(flag);
+    }
+
 
     private void createDataBlocks() {
         dataBlocks = new ArrayList<>();
         dataBlocks.add(new DataBlock(
-                panelData1,
-                buttonData1,
-                labelDataName1,
-                labelDataPath1,
-                labelDataW1,
-                labelDataH1
+                panelDataPan,
+                buttonDataPan,
+                buttonClearPan,
+                labelDataNamePan,
+                labelDataPathPan,
+                labelDataWPan,
+                labelDataHPan
         ));
         dataBlocks.add(new DataBlock(
                 panelData2,
                 buttonData2,
+                buttonClear2,
                 labelDataName2,
                 labelDataPath2,
                 labelDataW2,
@@ -153,6 +186,7 @@ public class GUI extends JFrame {
         dataBlocks.add(new DataBlock(
                 panelData3,
                 buttonData3,
+                buttonClear3,
                 labelDataName3,
                 labelDataPath3,
                 labelDataW3,
@@ -161,29 +195,188 @@ public class GUI extends JFrame {
         dataBlocks.add(new DataBlock(
                 panelData4,
                 buttonData4,
+                buttonClear4,
                 labelDataName4,
                 labelDataPath4,
                 labelDataW4,
                 labelDataH4
         ));
+        dataBlocks.add(new DataBlock(
+                panelData5,
+                buttonData5,
+                buttonClear5,
+                labelDataName5,
+                labelDataPath5,
+                labelDataW5,
+                labelDataH5
+        ));
+    }
+
+    private void createParameterBlocks() {
+        parameterBlocks = new ArrayList<>();
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner1,
+                labelSpinner1,
+                spinner1
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner2,
+                labelSpinner2,
+                spinner2
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner3,
+                labelSpinner3,
+                spinner3
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner4,
+                labelSpinner4,
+                spinner4
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner5,
+                labelSpinner5,
+                spinner5
+        ));
+        parameterBlocks.add(new ParameterBlock(
+                panelSpinner6,
+                labelSpinner6,
+                spinner6
+        ));
+    }
+
+    private void createAlgorithms() {
+        algorithms = new ArrayList<>();
+        algorithms.add(new AlgorithmCombine());
+        algorithms.add(new AlgorithmMean());
+        algorithms.add(new AlgorithmMax());
+        algorithms.add(new AlgorithmBrovey());
+        algorithms.add(new AlgorithmIHS());
+    }
+
+    private void createListeners() {
+        comboBoxAlgorithm.addActionListener(e -> {
+            updateDataBlocks();
+            updateParameterBlocks();
+        });
+
+        dataBlocks.forEach(o -> o.addListener(fileChooser));
+
+        buttonMerge.addActionListener(e -> mergeImages());
     }
 
     private void updateDataBlocks() {
         int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
+        if (selectedIndex == -1) {
+            dataBlocks.forEach(o -> o.setVisible(false));
+            return;
+        }
+
         GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
+        String[] bandNames = currentAlgorithm.getBandNames();
+        boolean[] usedBands = currentAlgorithm.getUsedBands();
+        boolean[] requiredBands = currentAlgorithm.getRequiredBands();
 
-        int numberOfBands = currentAlgorithm.getNumberOfBands();
-        List<String> bandNames = currentAlgorithm.getBandNames();
+        for (int i = 0; i < 5; i++) {
+            dataBlocks.get(i).setVisible(usedBands[i], bandNames[i], requiredBands[i]);
+        }
+    }
 
-        for (int i = 0; i < 4; i++) {
-            if (i < numberOfBands) {
-                dataBlocks.get(i).setVisible(true, bandNames.get(i));
-            }
-            else {
-                dataBlocks.get(i).setVisible(false);
-            }
+    private void updateParameterBlocks() {
+        int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
+        if (selectedIndex == -1) {
+            parameterBlocks.forEach(o -> o.setVisible(false));
+            return;
+        }
+
+        GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
+        AdditionalParameter[] parameters = currentAlgorithm.getParameters();
+
+        int i = 0;
+        for (; i < parameters.length; i++) {
+            parameterBlocks.get(i).setVisible(true, parameters[i]);
+        }
+        for(;i < 6; i++) {
+            parameterBlocks.get(i).setVisible(false);
         }
     }
 
 
+    private void mergeImages() {
+        if (!checkReadiness()) {
+            JOptionPane.showMessageDialog(this,
+                    "You need to select all required input data to perform pansharpening.",
+                    "Tip",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
+        GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
+        boolean[] usedBands = currentAlgorithm.getUsedBands();
+        int interpolationType = Integer.parseInt(radioButtonGroup.getSelection().getActionCommand());
+
+        int returnVal = fileChooser.showSaveDialog(null);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+
+            try {
+                List<String> inputs = new ArrayList<>();
+                for (int i = 0; i < 5; i++) {
+                    if (usedBands[i] & dataBlocks.get(i).isValid()) {
+                        inputs.add(dataBlocks.get(i).getFullPath());
+                    }
+                }
+                String pathResult = file.getPath();
+                inputs.add(pathResult);
+
+                List<Double> parameters = new ArrayList<>();
+                for (int i = 0; i < 6; i++) {
+                    if (parameterBlocks.get(i).isValid()) {
+                        parameters.add(parameterBlocks.get(i).getValue());
+                    }
+                }
+
+//                buttonMergeSetEnabled(false);
+                createAlgorithms();
+                currentAlgorithm.start(inputs, interpolationType, parameters, this);
+            } catch (IOException ioException) {
+                JOptionPane.showMessageDialog(this,
+                        "Unable to save to specified file.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private Boolean checkReadiness() {
+        int selectedIndex = comboBoxAlgorithm.getSelectedIndex();
+        GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
+        boolean[] requiredBands = currentAlgorithm.getRequiredBands();
+
+
+        for (int i = 0; i < 5; i++) {
+            if (requiredBands[i] & !dataBlocks.get(i).isValid()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void setLookAndFeel() throws ClassNotFoundException, UnsupportedLookAndFeelException,
+            InstantiationException, IllegalAccessException {
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (IllegalAccessException | InstantiationException |
+                UnsupportedLookAndFeelException | ClassNotFoundException e) {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+    }
 }
