@@ -11,13 +11,13 @@ import javax.swing.JPanel;
 import pansharpener.algorithms.GenericAlgorithm;
 
 public class DataBlock {
-    private JPanel panel;
-    private JButton buttonSelect;
-    private JButton buttonClear;
-    private JLabel name;
-    private JLabel path;
-    private JLabel w;
-    private JLabel h;
+    private final JPanel panel;
+    private final JButton buttonSelect;
+    private final JButton buttonClear;
+    private final JLabel name;
+    private final JLabel path;
+    private final JLabel w;
+    private final JLabel h;
 
     private String fullPath;
     private Boolean valid = false;

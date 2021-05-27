@@ -7,9 +7,9 @@ import javax.swing.SpinnerNumberModel;
 import pansharpener.algorithms.helpers.AdditionalParameter;
 
 public class ParameterBlock {
-    private JPanel panel;
-    private JLabel label;
-    private JSpinner spinner;
+    private final JPanel panel;
+    private final JLabel label;
+    private final JSpinner spinner;
     private Boolean valid = false;
 
     public ParameterBlock(JPanel panel, JLabel label, JSpinner spinner) {

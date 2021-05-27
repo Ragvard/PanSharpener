@@ -1,14 +1,10 @@
 package pansharpener.gui;
 
 import java.awt.HeadlessException;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -25,9 +21,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.data.DataSourceException;
-import org.geotools.gce.geotiff.GeoTiffReader;
 import pansharpener.algorithms.AlgorithmBrovey;
 import pansharpener.algorithms.AlgorithmCombine;
 import pansharpener.algorithms.AlgorithmIHS;

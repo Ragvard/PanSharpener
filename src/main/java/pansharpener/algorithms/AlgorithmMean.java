@@ -5,7 +5,6 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.geotools.coverage.grid.GridCoverage2D;

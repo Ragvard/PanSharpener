@@ -8,8 +8,8 @@ import pansharpener.algorithms.GenericAlgorithm;
 import pansharpener.gui.GUI;
 
 public class AlgorithmWorker extends SwingWorker<Void, Action> {
-    private GUI ui;
-    private GenericAlgorithm parent;
+    private final GUI ui;
+    private final GenericAlgorithm parent;
 
     public AlgorithmWorker(GUI ui, GenericAlgorithm parent) {
         this.ui = ui;
