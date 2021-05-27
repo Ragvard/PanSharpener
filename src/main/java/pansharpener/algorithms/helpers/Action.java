@@ -1,5 +1,6 @@
 package pansharpener.algorithms.helpers;
 
+import java.awt.Taskbar;
 import pansharpener.gui.GUI;
 
 public class Action {
@@ -14,5 +15,7 @@ public class Action {
     public void updateProgress(GUI ui) {
         ui.setCurrentAction(action);
         ui.setProgress(progress);
+        Taskbar taskbar = Taskbar.getTaskbar();
+        taskbar.setWindowProgressValue(ui, progress);
     }
 }

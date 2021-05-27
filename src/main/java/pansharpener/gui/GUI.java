@@ -1,11 +1,16 @@
 package pansharpener.gui;
 
 import java.awt.HeadlessException;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -20,8 +25,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.data.DataSourceException;
+import org.geotools.gce.geotiff.GeoTiffReader;
 import pansharpener.algorithms.AlgorithmBrovey;
 import pansharpener.algorithms.AlgorithmCombine;
+import pansharpener.algorithms.AlgorithmIHS;
 import pansharpener.algorithms.AlgorithmMax;
 import pansharpener.algorithms.GenericAlgorithm;
 import pansharpener.algorithms.AlgorithmMean;
@@ -30,7 +39,7 @@ import pansharpener.gui.blocks.DataBlock;
 import pansharpener.gui.blocks.ParameterBlock;
 
 public class GUI extends JFrame {
-    private class FileChooser extends JFileChooser {
+    private static class FileChooser extends JFileChooser {
         public FileChooser() throws ClassNotFoundException, UnsupportedLookAndFeelException,
                 InstantiationException, IllegalAccessException {
             this(null);
@@ -46,7 +55,7 @@ public class GUI extends JFrame {
 
     private JPanel panelMain;
     private JPanel panelAlgorithm;
-    private JComboBox comboBoxAlgorithm;
+    private JComboBox<String> comboBoxAlgorithm;
     private JButton buttonMerge;
     private JPanel panelSettings;
     private JPanel panelDataGeneral;
@@ -123,6 +132,8 @@ public class GUI extends JFrame {
     public GUI() throws HeadlessException, ClassNotFoundException, UnsupportedLookAndFeelException,
             InstantiationException, IllegalAccessException {
         super("PanSharpener");
+
+        this.setIconImage(new ImageIcon(this.getClass().getResource("/icon.png")).getImage());
 
         FileNameExtensionFilter filter = new FileNameExtensionFilter("GeoTIFF files", "tiff", "tif");
         fileChooser.setFileFilter(filter);
@@ -248,6 +259,7 @@ public class GUI extends JFrame {
         algorithms.add(new AlgorithmMean());
         algorithms.add(new AlgorithmMax());
         algorithms.add(new AlgorithmBrovey());
+        algorithms.add(new AlgorithmIHS());
     }
 
     private void createListeners() {
@@ -271,9 +283,10 @@ public class GUI extends JFrame {
         GenericAlgorithm currentAlgorithm = algorithms.get(selectedIndex);
         String[] bandNames = currentAlgorithm.getBandNames();
         boolean[] usedBands = currentAlgorithm.getUsedBands();
+        boolean[] requiredBands = currentAlgorithm.getRequiredBands();
 
         for (int i = 0; i < 5; i++) {
-            dataBlocks.get(i).setVisible(usedBands[i], bandNames[i]);
+            dataBlocks.get(i).setVisible(usedBands[i], bandNames[i], requiredBands[i]);
         }
     }
 

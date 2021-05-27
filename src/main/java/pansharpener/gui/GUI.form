@@ -35,7 +35,7 @@
             </constraints>
             <properties>
               <foreground color="-16777216"/>
-              <text value=""/>
+              <text value="Select the algorithm and input images"/>
             </properties>
           </component>
           <component id="4fd87" class="javax.swing.JButton" binding="buttonMerge">
@@ -47,7 +47,9 @@
               <enabled value="true"/>
               <font style="1"/>
               <foreground color="-16777216"/>
+              <icon value="start.png"/>
               <text value="Merge"/>
+              <toolTipText value="Start pansharpening"/>
             </properties>
           </component>
           <component id="3cb1a" class="javax.swing.JComboBox" binding="comboBoxAlgorithm">
@@ -62,10 +64,11 @@
               <background color="-2228262"/>
               <foreground color="-16777216"/>
               <model>
-                <item value="Combine"/>
-                <item value="Mean"/>
-                <item value="Max"/>
-                <item value="Brovey"/>
+                <item value="Combine Images"/>
+                <item value="Simple Mean Algorithm"/>
+                <item value="Maximum Algorithm"/>
+                <item value="Brovey Transromation"/>
+                <item value="IHS-Transformation"/>
               </model>
               <requestFocusEnabled value="true"/>
               <selectedIndex value="0"/>
@@ -81,6 +84,7 @@
             <properties>
               <background color="-2228262"/>
               <name value=""/>
+              <toolTipText value="Track algorithm progress"/>
             </properties>
           </component>
         </children>
@@ -107,7 +111,7 @@
               <background color="-5257041"/>
               <opaque value="true"/>
               <requestFocusEnabled value="true"/>
-              <toolTipText value="Text"/>
+              <toolTipText value="Choose image resampling algorithm"/>
             </properties>
             <border type="none" title="Interpolation type" title-justification="1" title-position="3">
               <font name="Fira Code"/>
@@ -124,7 +128,8 @@
                   <foreground color="-16777216"/>
                   <opaque value="false"/>
                   <selected value="true"/>
-                  <text value="Nearest neighbor"/>
+                  <text value="Nearest Neighbor"/>
+                  <toolTipText value=""/>
                 </properties>
               </component>
               <component id="aad67" class="javax.swing.JRadioButton" binding="radioButton2">
@@ -174,7 +179,7 @@
               <background color="-5257041"/>
               <opaque value="true"/>
               <requestFocusEnabled value="true"/>
-              <toolTipText value="Text"/>
+              <toolTipText value="Input additional parameters for current algorithm"/>
             </properties>
             <border type="none" title="Additional parameters" title-justification="1" title-position="3">
               <font name="Fira Code"/>
@@ -457,6 +462,7 @@
                       <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <font name="Consolas" style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Pan band"/>
                     </properties>
@@ -475,6 +481,7 @@
                       <icon value="delete.png"/>
                       <inheritsPopupMenu value="false"/>
                       <text value=""/>
+                      <toolTipText value="Clear selection"/>
                     </properties>
                   </component>
                   <component id="4c1fa" class="javax.swing.JButton" binding="buttonDataPan">
@@ -490,6 +497,7 @@
                       <font style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Select"/>
+                      <toolTipText value="Select image from file"/>
                     </properties>
                   </component>
                 </children>
@@ -517,6 +525,7 @@
                       <font style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Select"/>
+                      <toolTipText value="Select image from file"/>
                     </properties>
                   </component>
                   <hspacer id="5596">
@@ -577,6 +586,7 @@
                       <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <font name="Consolas" style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Band name"/>
                     </properties>
@@ -593,6 +603,7 @@
                       <background color="-2228262"/>
                       <icon value="delete.png"/>
                       <text value=""/>
+                      <toolTipText value="Clear selection"/>
                     </properties>
                   </component>
                 </children>
@@ -620,6 +631,7 @@
                       <font style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Select"/>
+                      <toolTipText value="Select image from file"/>
                     </properties>
                   </component>
                   <hspacer id="1479f">
@@ -680,6 +692,7 @@
                       <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <font name="Consolas" style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Band name"/>
                     </properties>
@@ -696,6 +709,7 @@
                       <background color="-2228262"/>
                       <icon value="delete.png"/>
                       <text value=""/>
+                      <toolTipText value="Clear selection"/>
                     </properties>
                   </component>
                 </children>
@@ -723,6 +737,7 @@
                       <font style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Select"/>
+                      <toolTipText value="Select image from file"/>
                     </properties>
                   </component>
                   <hspacer id="c384e">
@@ -783,6 +798,7 @@
                       <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <font name="Consolas" style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Band name"/>
                     </properties>
@@ -799,6 +815,7 @@
                       <background color="-2228262"/>
                       <icon value="delete.png"/>
                       <text value=""/>
+                      <toolTipText value="Clear selection"/>
                     </properties>
                   </component>
                 </children>
@@ -831,6 +848,7 @@
                       <font style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Select"/>
+                      <toolTipText value="Select image from file"/>
                     </properties>
                   </component>
                   <hspacer id="d4468">
@@ -891,6 +909,7 @@
                       <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
+                      <font name="Consolas" style="1"/>
                       <foreground color="-16777216"/>
                       <text value="Band name"/>
                     </properties>
@@ -907,6 +926,7 @@
                       <background color="-2228262"/>
                       <icon value="delete.png"/>
                       <text value=""/>
+                      <toolTipText value="Clear selection"/>
                     </properties>
                   </component>
                 </children>

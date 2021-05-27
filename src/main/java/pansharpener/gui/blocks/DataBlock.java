@@ -1,5 +1,6 @@
 package pansharpener.gui.blocks;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -32,12 +33,20 @@ public class DataBlock {
     }
 
     public void setVisible(boolean flag) {
-        setVisible(flag, "");
+        setVisible(flag, "", false);
     }
 
-    public void setVisible(boolean flag, String newName) {
+    public void setVisible(boolean flag, String newName, boolean isRequired) {
         panel.setVisible(flag);
         name.setText(newName);
+        if (isRequired) {
+            name.setForeground(Color.BLACK);
+            panel.setToolTipText("Required input");
+        }
+        else {
+            name.setForeground(Color.DARK_GRAY);
+            panel.setToolTipText("Optional input");
+        }
         if(!flag) clear();
     }
 

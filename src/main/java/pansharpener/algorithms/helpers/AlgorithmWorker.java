@@ -1,5 +1,6 @@
 package pansharpener.algorithms.helpers;
 
+import java.awt.Taskbar;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
@@ -26,6 +27,8 @@ public class AlgorithmWorker extends SwingWorker<Void, Action> {
             get();
             ui.buttonMergeSetEnabled(true);
             parent.clearWorker();
+            Taskbar taskbar = Taskbar.getTaskbar();
+            taskbar.setWindowProgressValue(ui, 0);
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }

@@ -7,6 +7,7 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import javax.swing.JOptionPane;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.opengis.geometry.Envelope;
@@ -78,13 +79,19 @@ public class AlgorithmMax extends GenericAlgorithm{
 
 
         if (numberOfInputs == 5) {
-            merge(paths, interpolationType);
+            if (parameters.size() != 3) {
+                displayMessage("Invalid number of parameters, expected 3, received " + parameters.size(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            ui.buttonMergeSetEnabled(false);
+            merge(paths, interpolationType, parameters);
         } else {
             throw new IllegalArgumentException("Invalid number of paths: expected 5, received  " + numberOfInputs);
         }
     }
 
-    private void merge(List<String> paths, int interpolationType) {
+    private void merge(List<String> paths, int interpolationType,  List<Double> parameters) {
         worker = new AlgorithmWorker(ui, this) {
             @Override
             protected Void doInBackground() throws Exception {
@@ -127,11 +134,15 @@ public class AlgorithmMax extends GenericAlgorithm{
                 publish(new Action("Preprocessing: Creating Raster...", 75));
                 WritableRaster raster = Raster.createBandedRaster(DataBuffer.TYPE_USHORT, w, h, 3, null);
 
+                double rw = parameters.get(0);
+                double gw = parameters.get(1);
+                double bw = parameters.get(2);
+
                 for (int x = 0; x < w; x++) {
                     for (int y = 0; y < h; y++) {
-                        int r = bufferRed.getElem(x + y * w);
-                        int g = bufferGreen.getElem(x + y * w);
-                        int b = bufferBlue.getElem(x + y * w);
+                        int r = (int) (bufferRed.getElem(x + y * w) * rw);
+                        int g = (int) (bufferGreen.getElem(x + y * w) * gw);
+                        int b = (int) (bufferBlue.getElem(x + y * w) * bw);
                         int p = bufferPan.getElem(x + y * w);
 
                         int[] arr = new int[3];

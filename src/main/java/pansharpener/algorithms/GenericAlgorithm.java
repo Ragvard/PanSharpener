@@ -11,17 +11,14 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import javax.media.jai.Interpolation;
 import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.processing.Operations;
 import org.geotools.gce.geotiff.GeoTiffReader;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.opengis.geometry.Envelope;
-import pansharpener.algorithms.helpers.Action;
 import pansharpener.algorithms.helpers.AdditionalParameter;
 import pansharpener.algorithms.helpers.AlgorithmWorker;
 import pansharpener.gui.GUI;
@@ -50,8 +47,8 @@ public abstract class GenericAlgorithm {
         Hashtable<String, Object> properties = new Hashtable<>();
         String[] keys = imagePan.getPropertyNames();
         if (keys != null) {
-            for (int i = 0; i < keys.length; i++) {
-                properties.put(keys[i], imagePan.getProperty(keys[i]));
+            for (String key : keys) {
+                properties.put(key, imagePan.getProperty(key));
             }
         }
 
@@ -79,7 +76,6 @@ public abstract class GenericAlgorithm {
 
     protected static GridCoverage2D rescale(GridCoverage2D baseCoverage, GridCoverage2D targetCoverage,
                                          int interpolationType) {
-
         RenderedImage baseImage = targetCoverage.getRenderedImage();
         double baseScale = (targetCoverage.getEnvelope2D().getMaxY() - targetCoverage.getEnvelope2D().getMinY())
                 / baseImage.getHeight();
@@ -99,6 +95,7 @@ public abstract class GenericAlgorithm {
 
         return baseCoverage;
     }
+
     public void clearWorker() {
         worker = null;
         System.gc();
