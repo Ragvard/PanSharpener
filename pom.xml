@@ -71,18 +71,6 @@
             <artifactId>gt-main</artifactId>
             <version>${geotools.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.geotools/gt-shapefile -->
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-shapefile</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.geotools/gt-swing -->
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-swing</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.geotools/gt-geotiff -->
         <dependency>
             <groupId>org.geotools</groupId>
@@ -99,12 +87,6 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-wms</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.geotools/gt-coverage -->
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-coverage</artifactId>
             <version>${geotools.version}</version>
         </dependency>
     </dependencies>
