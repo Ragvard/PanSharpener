@@ -81,16 +81,16 @@ public class AlgorithmBrovey extends GenericAlgorithm{
 
         if (numberOfInputs == 5) {
             ui.buttonMergeSetEnabled(false);
-            mergenonir(paths, interpolationType, parameters);
+            mergeNoNir(paths, interpolationType, parameters);
         } else if (numberOfInputs == 6) {
             ui.buttonMergeSetEnabled(false);
-            mergenir(paths, interpolationType, parameters);
+            mergeNir(paths, interpolationType, parameters);
         } else {
             displayMessage("Invalid number of inputs", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void mergenonir(List<String> paths, int interpolationType, List<Double> parameters) {
+    private void mergeNoNir(List<String> paths, int interpolationType, List<Double> parameters) {
         worker = new AlgorithmWorker(ui, this) {
             @Override
             protected Void doInBackground() throws Exception {
@@ -171,7 +171,7 @@ public class AlgorithmBrovey extends GenericAlgorithm{
         worker.execute();
     }
 
-    private void mergenir(List<String> paths, int interpolationType, List<Double> parameters) {
+    private void mergeNir(List<String> paths, int interpolationType, List<Double> parameters) {
         worker = new AlgorithmWorker(ui, this) {
             @Override
             protected Void doInBackground() throws Exception {

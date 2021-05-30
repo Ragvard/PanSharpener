@@ -81,16 +81,16 @@ public class AlgorithmIHS extends GenericAlgorithm {
 
         if (numberOfInputs == 5) {
             ui.buttonMergeSetEnabled(false);
-            mergenonir(paths, interpolationType, parameters);
+            mergeNoNir(paths, interpolationType, parameters);
         } else if (numberOfInputs == 6) {
             ui.buttonMergeSetEnabled(false);
-            mergenir(paths, interpolationType, parameters);
+            mergeNir(paths, interpolationType, parameters);
         } else {
             displayMessage("Invalid number of inputs", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void mergenir(List<String> paths, int interpolationType, List<Double> parameters) {
+    private void mergeNir(List<String> paths, int interpolationType, List<Double> parameters) {
         worker = new AlgorithmWorker(ui, this) {
             @Override
             protected Void doInBackground() throws Exception {
@@ -153,32 +153,29 @@ public class AlgorithmIHS extends GenericAlgorithm {
                         double ir = (bufferNir.getElem(x + y * width) * irw) / 65536d;
                         double p = bufferPan.getElem(x + y * width) / 65536d;
 
-                        double ma = Math.max(Math.max(r, g), b);
-                        double mi = Math.min(Math.min(r, g), b);
-                        double delta = ma - mi;
+                        double max = Math.max(Math.max(r, g), b);
+                        double min = Math.min(Math.min(r, g), b);
+                        double delta = max - min;
                         double h;
                         double s;
                         double v;
 
                         if (delta > 0) {
-                            if (ma == r) {
+                            if (max == r) {
                                 h = 60 * (((g - b) / delta) % 6d);
-                            } else if (ma == g) {
+                            } else if (max == g) {
                                 h = 60 * (((b - r) / delta) + 2);
-                            } else { // if (ma == b)
+                            } else { // if (max == b)
                                 h = 60 * (((r - g) / delta) + 4);
                             }
-
-                            if (ma > 0) {
-                                s = delta / ma;
-                            } else {
-                                s = 0;
-                            }
-                            v = ma;
                         } else {
                             h = 0;
+                        }
+
+                        if (max == 0) {
                             s = 0;
-                            v = ma;
+                        } else {
+                            s = delta / max;
                         }
 
                         if (h < 0) {
@@ -190,49 +187,57 @@ public class AlgorithmIHS extends GenericAlgorithm {
                         v = p - ir;
 
                         ////////////////////////
-                        double c = v * s; // Chroma
-                        double fHPrime = (h / 60.0) % 6;
-                        double X = c * (1 - Math.abs((fHPrime % 2) - 1));
+
+                        double c = v * s;
+                        int fHPrime = (int) (h / 60);
+                        double X = c * (1 - Math.abs(((h / 60.0) % 2d) - 1));
                         double M = v - c;
 
-                        if (0 <= fHPrime && fHPrime < 1) {
-                            r = c;
-                            g = X;
-                            b = 0;
-                        } else if (1 <= fHPrime && fHPrime < 2) {
-                            r = X;
-                            g = c;
-                            b = 0;
-                        } else if (2 <= fHPrime && fHPrime < 3) {
-                            r = 0;
-                            g = c;
-                            b = X;
-                        } else if (3 <= fHPrime && fHPrime < 4) {
-                            r = 0;
-                            g = X;
-                            b = c;
-                        } else if (4 <= fHPrime && fHPrime < 5) {
-                            r = X;
-                            g = 0;
-                            b = c;
-                        } else if (5 <= fHPrime && fHPrime < 6) {
-                            r = c;
-                            g = 0;
-                            b = X;
-                        } else {
-                            r = 0;
-                            g = 0;
-                            b = 0;
+                        switch (fHPrime) {
+                            case 0:
+                                r = c;
+                                g = X;
+                                b = 0;
+                                break;
+                            case 1:
+                                r = X;
+                                g = c;
+                                b = 0;
+                                break;
+                            case 2:
+                                r = 0;
+                                g = c;
+                                b = X;
+                                break;
+                            case 3:
+                                r = 0;
+                                g = X;
+                                b = c;
+                                break;
+                            case 4:
+                                r = X;
+                                g = 0;
+                                b = c;
+                                break;
+                            case 5:
+                                r = c;
+                                g = 0;
+                                b = X;
+                                break;
+                            default:
+                                r = 0;
+                                g = 0;
+                                b = 0;
+                                break;
                         }
 
                         r += M;
                         g += M;
                         b += M;
 
-
-                        r = r * 65536;
-                        b = b * 65536;
-                        g = g * 65536;
+                        r = r * 65536d;
+                        b = b * 65536d;
+                        g = g * 65536d;
 
                         int[] arr = new int[3];
                         arr[0] = (int) r;
@@ -257,7 +262,7 @@ public class AlgorithmIHS extends GenericAlgorithm {
         worker.execute();
     }
 
-    private void mergenonir(List<String> paths, int interpolationType, List<Double> parameters) {
+    private void mergeNoNir(List<String> paths, int interpolationType, List<Double> parameters) {
         worker = new AlgorithmWorker(ui, this) {
             @Override
             protected Void doInBackground() throws Exception {
