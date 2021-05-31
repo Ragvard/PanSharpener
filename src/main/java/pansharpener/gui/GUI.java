@@ -321,32 +321,42 @@ public class GUI extends JFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
 
-            try {
-                List<String> inputs = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
-                    if (usedBands[i] & dataBlocks.get(i).isValid()) {
-                        inputs.add(dataBlocks.get(i).getFullPath());
+            if(checkFile(file)) {
+                try {
+                    List<String> inputs = new ArrayList<>();
+                    for (int i = 0; i < 5; i++) {
+                        if (usedBands[i] & dataBlocks.get(i).isValid()) {
+                            inputs.add(dataBlocks.get(i).getFullPath());
+                        }
                     }
-                }
-                String pathResult = file.getPath();
-                inputs.add(pathResult);
+                    String pathResult = file.getPath();
+                    inputs.add(pathResult);
 
-                List<Double> parameters = new ArrayList<>();
-                for (int i = 0; i < 6; i++) {
-                    if (parameterBlocks.get(i).isValid()) {
-                        parameters.add(parameterBlocks.get(i).getValue());
+                    List<Double> parameters = new ArrayList<>();
+                    for (int i = 0; i < 6; i++) {
+                        if (parameterBlocks.get(i).isValid()) {
+                            parameters.add(parameterBlocks.get(i).getValue());
+                        }
                     }
-                }
 
 //                buttonMergeSetEnabled(false);
-                createAlgorithms();
-                currentAlgorithm.start(inputs, interpolationType, parameters, this);
-            } catch (IOException ioException) {
+                    createAlgorithms();
+                    currentAlgorithm.start(inputs, interpolationType, parameters, this);
+                } catch (IOException ioException) {
+                    JOptionPane.showMessageDialog(this,
+                            "Unable to save to specified file.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            else {
                 JOptionPane.showMessageDialog(this,
                         "Unable to save to specified file.",
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
             }
+
+
         }
     }
 
@@ -378,5 +388,10 @@ public class GUI extends JFrame {
                 UnsupportedLookAndFeelException | ClassNotFoundException e) {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
+    }
+
+    private boolean checkFile(File file) {
+        if (!file.exists()) return true;
+        return file.canWrite();
     }
 }

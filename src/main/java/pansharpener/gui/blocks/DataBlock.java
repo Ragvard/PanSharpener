@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import pansharpener.algorithms.GenericAlgorithm;
 
@@ -64,7 +65,10 @@ public class DataBlock {
                     h.setText("H:" + info.get("Height"));
                     valid = true;
                 } catch (IOException ioException) {
-                    ioException.printStackTrace();
+                    JOptionPane.showMessageDialog(panel.getRootPane(),
+                            "Unable to open file.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
                     clear();
                 }
             }
