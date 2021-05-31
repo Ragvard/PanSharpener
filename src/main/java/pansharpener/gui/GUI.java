@@ -321,7 +321,7 @@ public class GUI extends JFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
 
-            if(file.canWrite()) {
+            if(checkFile(file)) {
                 try {
                     List<String> inputs = new ArrayList<>();
                     for (int i = 0; i < 5; i++) {
@@ -388,5 +388,10 @@ public class GUI extends JFrame {
                 UnsupportedLookAndFeelException | ClassNotFoundException e) {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
+    }
+
+    private boolean checkFile(File file) {
+        if (!file.exists()) return true;
+        return file.canWrite();
     }
 }
