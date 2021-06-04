@@ -1,0 +1,29 @@
+
+
+Version:	3.14
+CmdLine:	C:\Users\PC\Desktop\PanSharpenerGit\out\artifacts\PanSharpener_jar\PanSharpener.exe --l4j-debug
+WOW64:		yes
+Working dir:	C:\Users\PC\Desktop\PanSharpenerGit\out\artifacts\PanSharpener_jar\.
+Java min ver:	1.011.000
+Java max ver:	
+64-bit search:	SOFTWARE\JavaSoft\Java Runtime Environment...
+Check:		SOFTWARE\JavaSoft\Java Runtime Environment\1.8
+Ignore:		1.008.000
+Check:		SOFTWARE\JavaSoft\Java Runtime Environment\1.8.0_281
+Ignore:		1.008.000_281
+32-bit search:	SOFTWARE\JavaSoft\Java Runtime Environment...
+64-bit search:	SOFTWARE\JavaSoft\Java Development Kit...
+32-bit search:	SOFTWARE\JavaSoft\Java Development Kit...
+64-bit search:	SOFTWARE\JavaSoft\JRE...
+32-bit search:	SOFTWARE\JavaSoft\JRE...
+64-bit search:	SOFTWARE\JavaSoft\JDK...
+Check:		SOFTWARE\JavaSoft\JDK\11.0.9
+Check launcher:	C:\Program Files\Java\jdk-11.0.9\bin\javaw.exe (OK)
+Match:		1.011.000_009
+Runtime used:	1.011.000_009 (64-bit)
+Heap -Xms:	Requested 1024 MB / 0%, Available: 10614 MB, Heap size: 1024 MB
+Heap -Xmx:	Requested 8192 MB / 0%, Available: 10614 MB, Heap size: 8192 MB
+Launcher:	C:\Program Files\Java\jdk-11.0.9\bin\javaw.exe
+Launcher args:	-Xms1024m -Xmx8192m -jar "C:\Users\PC\Desktop\PanSharpenerGit\out\artifacts\PanSharpener_jar\PanSharpener.exe"
+Args length:	110/32768 chars
+Exit code:	0
